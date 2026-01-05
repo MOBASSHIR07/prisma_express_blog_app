@@ -63,4 +63,6 @@ const authMiddleware = (...roles: string[]) => {
 router.get('/', postController.getAllPost )
 
 router.post('/', authMiddleware("USER"), postController.createPost)
+router.get('/:id', postController.getSinglePost);
 export const postRoute = router;
+export default authMiddleware
