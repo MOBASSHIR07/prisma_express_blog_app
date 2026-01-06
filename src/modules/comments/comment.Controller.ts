@@ -83,10 +83,71 @@ const getCommentByAuthorId = async(req:Request, res:Response)=>{
     }
 }
 
+const deleteComment = async(req:Request, res:Response)=>{
+  
+
+    const commentId = req.params.id
+    if(!commentId){
+        throw new Error("")
+    }
+    try {
+        const userId = req.user?.id
+        if(!userId){
+            throw new Error('User not log in')
+        }
+        const result = await commentService.deleteCommentDB(commentId, userId)
+
+         res.status(201).json({
+            success: true,
+            message: "Comment deleted successfully!",
+            data: result
+        });
+        
+    } catch (error:any) {
+                  res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+}
+
+const updateComment = async(req:Request, res:Response)=>{
+  
+
+    const commentId = req.params.id
+    if(!commentId){
+        throw new Error("")
+    }
+    try {
+
+        const {content} = req.body
+
+    
+        const userId = req.user?.id
+        if(!userId){
+            throw new Error('User not log in')
+        }
+        const result = await commentService.updateCommentDB(commentId, userId, content)
+
+         res.status(200).json({
+            success: true,
+            message: "Comment updated successfully!",
+            data: result
+        });
+        
+    } catch (error:any) {
+                  res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+}
 
 
 export const commentController = {
     createComment,
     getCommentById,
-    getCommentByAuthorId
+    getCommentByAuthorId,
+    deleteComment,
+    updateComment
 }

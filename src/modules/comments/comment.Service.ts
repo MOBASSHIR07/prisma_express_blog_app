@@ -66,9 +66,70 @@ const getCommentByAuthorDB = async(authorId:string)=>{
     })
 }
 
+const deleteCommentDB = async(commentId:string , authorId:string)=>{
+
+const commentData = await prisma.comment.findFirst({
+    where:{
+        id:commentId,
+        authorId:authorId
+    },
+    select:{
+        id:true
+    }
+})
+
+if(!commentData){
+    throw new Error("Invalid")
+}
+
+const result = await prisma.comment.delete({
+    where:{
+        id:commentId
+    }
+
+})
+return result
+
+
+
+}
+
+const updateCommentDB = async(commentId:string , authorId:string, data:string)=>{
+
+const commentData = await prisma.comment.findFirst({
+    where:{
+        id:commentId,
+        authorId:authorId
+    },
+    select:{
+        id:true
+    }
+})
+
+if(!commentData){
+    throw new Error("Invalid")
+}
+
+const result = await prisma.comment.update({
+    where:{
+        id:commentId
+    },
+    data:{
+        content:data
+    }
+
+})
+return result
+
+
+
+}
+
 
 export const commentService = {
     createCommentDb,
     getCommentByIdDB,
-    getCommentByAuthorDB
+    getCommentByAuthorDB,
+    deleteCommentDB,
+    updateCommentDB
 }
