@@ -70,6 +70,8 @@ const getAllPost = async (req: Request, res: Response) => {
     });
   }
 };
+
+
 const getSinglePost = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -99,11 +101,115 @@ const getSinglePost = async (req: Request, res: Response) => {
 };
 
 
+const getMyPosts = async (req: Request, res: Response) => {
+  try {
+  
+    const authorId = req.user?.id
+  console.log(authorId);
+    if(!authorId){
+      throw new Error("Please Login first")
+    }
+
+    const result = await postService.getMyPostsDB(authorId);
+
+    res.status(200).json({
+      success: true,
+      message: "Posts fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+const updateMyPosts = async (req: Request, res: Response) => {
+  try {
+  
+
+    const data = req.body
+    const postId = req.params.postId!
+    const authorId = req.user?.id
+    const isAdmin = req.user?.role === "ADMIN";
+    if(!authorId){
+      throw new Error("Please Login first")
+    }
+
+    const result = await postService.updateMyPostDB(postId,authorId, data, isAdmin);
+
+    res.status(200).json({
+      success: true,
+      message: "Posts updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+
+const deleteMyPosts = async (req: Request, res: Response) => {
+  try {
+  
+    const postId = req.params.postId!
+    const authorId = req.user?.id
+    const isAdmin = req.user?.role === "ADMIN";
+    if(!authorId){
+      throw new Error("Please Login first")
+    }
+
+    const result = await postService.deleteMyPostDB(postId,authorId,  isAdmin);
+
+    res.status(200).json({
+      success: true,
+      message: "Posts deleted successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getStas = async (req:Request, res:Response)=>{
+
+try {
+
+  const result = await postService.getStatsDB()
+    res.status(200).json({
+      success: true,
+      message: "Posts updated successfully",
+      data: result,
+    });
+  
+} catch (error:any) {
+     console.log(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+}
+
+}
 
 
 
 export const postController = {
     createPost,
     getAllPost,
-    getSinglePost
+    getSinglePost,
+    getMyPosts,
+    updateMyPosts, deleteMyPosts, getStas
 }

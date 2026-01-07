@@ -1,5 +1,6 @@
 import { tuple } from "better-auth";
 import { prisma } from "../../lib/prisma.js";
+import { CommentStatus } from "../../../generated/prisma/enums.js";
 
 
 const createCommentDb = async(payload:{content:string, postId:string, authorId:string, parentId?:string})=>{
@@ -125,11 +126,34 @@ return result
 
 }
 
+const moderateCommentDB = async(commentId:string, status:CommentStatus)=>{
+
+   const statusData = await prisma.comment.findUniqueOrThrow({
+        where:{
+            id:commentId
+        }
+    })
+
+    if(statusData.status === status){
+        throw new Error(`You have already status (${status})`)
+    }
+    const result = await prisma.comment.update({
+        where:{
+            id : commentId
+        },
+        data: {
+            status
+        }
+    })
+       return result
+}
+
 
 export const commentService = {
     createCommentDb,
     getCommentByIdDB,
     getCommentByAuthorDB,
     deleteCommentDB,
-    updateCommentDB
+    updateCommentDB,
+    moderateCommentDB
 }

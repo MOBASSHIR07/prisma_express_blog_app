@@ -11,5 +11,6 @@ router.get('/:id', commentController.getCommentById)
 router.get('/author/:id', commentController.getCommentByAuthorId)
 router.delete('/comment/:id',authMiddleware("ADMIN", "USER"), commentController.deleteComment )
 router.put('/comment/:id',authMiddleware("ADMIN", "USER"), commentController.updateComment )
+router.patch('/comment/:id',authMiddleware("ADMIN"), commentController.moderateComment )
 
 export const commentRoute = router;

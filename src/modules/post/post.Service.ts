@@ -177,8 +177,142 @@ const getSinglePostDB = async (id: string) => {
 
   return result;
 };
+
+
+  const getMyPostsDB = async(authorId:string)=>{
+
+    await prisma.user.findUniqueOrThrow({
+      where:{
+        id:authorId,
+        status:"ACTIVE"
+      }
+    })
+
+
+    const result = await prisma.post.findMany({
+      where:{
+        authorId:authorId
+      }
+    })
+    return result
+  }
+
+  const updateMyPostDB = async(postId:string,authorId:string, data :Partial<Post>, isAdmin:Boolean)=>{
+
+      const postData = await prisma.post.findUniqueOrThrow({
+        where:{
+          id:postId
+        },
+        select:{
+          id:true,
+          authorId:true
+        }
+
+      })
+      if(!isAdmin && (postData.authorId!==authorId)){
+        
+        throw new Error("YOU are not authenticate")
+      }
+
+      if(!isAdmin){
+        delete data.isFeatured
+
+      }
+
+      const result = await prisma.post.update({
+        where:{
+          id:postId
+        },
+        data
+      })
+
+      return result
+
+  }
+
+  const deleteMyPostDB = async(postId:string,authorId:string, isAdmin:Boolean)=>{
+
+      const postData = await prisma.post.findUniqueOrThrow({
+        where:{
+          id:postId
+        },
+        select:{
+          id:true,
+          authorId:true
+        }
+
+      })
+      if(!isAdmin && (postData.authorId!==authorId)){
+        
+        throw new Error("YOU are not authenticate")
+      }
+
+      const result = await prisma.post.delete({
+        where:{
+          id:postId
+        }
+      })
+
+      return result
+
+  }
+
+
+ 
+  const getStatsDB = async () => {
+  const [
+    totalUsers,
+    totalPosts,
+    totalComments,
+    postStats,
+    totalAdmin,
+    totalNormalUser
+  ] = await prisma.$transaction([
+    prisma.user.count(),
+
+    prisma.post.count(),
+
+    prisma.comment.count(),
+
+    prisma.post.aggregate({
+      _sum: { view: true },
+      _avg: { view: true },
+    }),
+    prisma.user.count({
+      where:{
+        role:"ADMIN"
+      }
+    }),
+     prisma.user.count({
+      where:{
+        role:"USER"
+      }
+    })
+  ]);
+
+  return {
+    users: {
+      total: totalUsers,
+      totalAdmin:totalAdmin,
+      totalNormalUser:totalNormalUser
+    },
+    posts: {
+      total: totalPosts,
+      totalViews: postStats._sum.view ?? 0,
+      avgViews: postStats._avg.view ?? 0,
+    },
+    comments: {
+      total: totalComments,
+   
+    },
+  };
+};
+
+
+
 export const postService = {
     createPostDB,
     getAllPostDB,
-    getSinglePostDB
+    getSinglePostDB,
+    getMyPostsDB, updateMyPostDB, deleteMyPostDB, getStatsDB
 }
