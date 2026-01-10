@@ -4,6 +4,8 @@ import { toNodeHandler } from "better-auth/node";
 import { postRoute } from './modules/post/post.Route.js';
 import { auth } from './lib/auth.js';
 import { commentRoute } from './modules/comments/comment.Route.js';
+import errorHandler from './middleware/globalErrorHandler.js';
+import notFound from './middleware/notFound.js';
 const app = express()
 
 app.all('/api/auth/{*any}', toNodeHandler(auth));
@@ -18,4 +20,8 @@ app.get('/' , (req,res)=>{
 
 app.use('/posts',postRoute)
 app.use('/comments',commentRoute)
+
+app.use(notFound)
+
+app.use(errorHandler)
 export default app;

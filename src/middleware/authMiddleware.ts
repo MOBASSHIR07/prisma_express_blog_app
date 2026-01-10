@@ -21,12 +21,14 @@ declare global{
       headers: req.headers as any,
     });
 
+    console.log("before session");
     if (!session) {
       return res.status(401).json({
         success: false,
         message: "You are not authorized",
       });
     }
+    console.log("after session");
 
     if (!session.user.emailVerified) {
       return res.status(403).json({

@@ -1,10 +1,9 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { PostFilter, postService } from "./post.Service.js";
 import { PostStatus } from "../../../generated/prisma/enums.js";
 import paginationSortingHelpers from "../../helper/paginationSortingHelper.js";
-import { error } from "node:console";
 
-const createPost = async (req: Request, res: Response) => {
+const createPost = async (req: Request, res: Response, next:NextFunction) => {
 
     try {
         console.log(req.user);
@@ -16,16 +15,14 @@ const createPost = async (req: Request, res: Response) => {
         });
 
     } catch (err: any) {
-        res.status(500).json({
-            success: false,
-            message: err.message
-        })
+        
+      next(err)
 
     }
 
 }
 
-const getAllPost = async (req: Request, res: Response) => {
+const getAllPost = async (req: Request, res: Response, next:NextFunction) => {
   try {
     const filter: PostFilter = {};
 
@@ -64,15 +61,12 @@ const getAllPost = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+     next(error)
   }
 };
 
 
-const getSinglePost = async (req: Request, res: Response) => {
+const getSinglePost = async (req: Request, res: Response, next:NextFunction) => {
   try {
     const { id } = req.params;
     if(!id){
@@ -93,15 +87,12 @@ const getSinglePost = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error)
   }
 };
 
 
-const getMyPosts = async (req: Request, res: Response) => {
+const getMyPosts = async (req: Request, res: Response, next:NextFunction) => {
   try {
   
     const authorId = req.user?.id
@@ -118,11 +109,7 @@ const getMyPosts = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    console.log(error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+   next(error)
   }
 };
 
